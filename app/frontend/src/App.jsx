@@ -17,7 +17,6 @@ function App() {
   const [page, setPage] = useState('dashboard')
 
   const [audio, setAudio] = useState(null)
-  const [facial, setFacial] = useState(null)
   const [video, setVideo] = useState(null)
   const [transcript, setTranscript] = useState(null)
 
@@ -29,7 +28,7 @@ function App() {
   const [error, setError] = useState('')
 
   async function handleAssessment() {
-    if (!audio && !facial && !transcript) {
+    if (!audio && !video && !transcript) {
       setError('Upload at least one file for input quality assessment.')
       return
     }
@@ -40,8 +39,9 @@ function App() {
     setScreening(null)
 
     const formData = new FormData()
+
     if (audio) formData.append('audio', audio)
-    if (facial) formData.append('facial', facial)
+    if (video) formData.append('video', video)
     if (transcript) formData.append('transcript', transcript)
 
     try {
@@ -51,7 +51,11 @@ function App() {
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.detail || 'Assessment failed')
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Assessment failed')
+      }
+
       setReport(data)
     } catch (err) {
       setError(err.message || 'Unable to connect to MindCare API.')
@@ -72,6 +76,7 @@ function App() {
     setReport(null)
 
     const formData = new FormData()
+
     if (audio) formData.append('audio', audio)
     if (video) formData.append('video', video)
     if (transcript) formData.append('transcript', transcript)
@@ -85,7 +90,11 @@ function App() {
       })
 
       const data = await response.json()
-      if (!response.ok) throw new Error(data.detail || 'Screening failed')
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Screening failed')
+      }
+
       setScreening(data)
     } catch (err) {
       setError(err.message || 'Unable to run screening.')
@@ -96,7 +105,6 @@ function App() {
 
   function resetAssessment() {
     setAudio(null)
-    setFacial(null)
     setVideo(null)
     setTranscript(null)
     setReport(null)
@@ -115,11 +123,13 @@ function App() {
         <div className="upload-symbol">↑</div>
         <div className="upload-title">{title}</div>
         <div className="upload-description">{description}</div>
+
         <input
           type="file"
           accept={accept}
           onChange={(e) => onChange(e.target.files?.[0] || null)}
         />
+
         <div className="upload-selected">
           {file ? `✓ ${file.name}` : 'Click to browse files'}
         </div>
@@ -133,16 +143,27 @@ function App() {
         <section className="hero">
           <div className="hero-content">
             <div className="eyebrow">MULTIMODAL RESEARCH SYSTEM</div>
-            <h2>Understand signals.<br />Explore patterns.</h2>
+
+            <h2>
+              Understand signals.
+              <br />
+              Explore patterns.
+            </h2>
+
             <p>
               MindCare is an experimental AI-based screening prototype
               that combines speech, facial features and text to estimate
               PHQ-8 symptom scores.
             </p>
-            <button className="primary-button hero-button" onClick={goToAssessment}>
+
+            <button
+              className="primary-button hero-button"
+              onClick={goToAssessment}
+            >
               Start New Assessment <span>→</span>
             </button>
           </div>
+
           <div className="hero-art">
             <div className="orb orb-one"></div>
             <div className="orb orb-two"></div>
@@ -171,7 +192,7 @@ function App() {
 
           <div className="overview-card">
             <div className="overview-icon facial-icon">◉</div>
-            <h3>Facial Features</h3>
+            <h3>Video / Facial Analysis</h3>
             <p>
               Uses video-derived facial measurements, including OpenFace
               action units and landmark features.
@@ -242,6 +263,7 @@ function App() {
               <h3>Upload Files</h3>
               <p>Patient identification is not required.</p>
             </div>
+
             <span className="anonymous-tag">Anonymous</span>
           </div>
 
@@ -259,7 +281,7 @@ function App() {
               accept=".mp4,.avi,.mov"
               file={video}
               onChange={setVideo}
-              description="Video file"
+              description="MP4, AVI or MOV video"
             />
 
             <FileInput
@@ -269,31 +291,27 @@ function App() {
               onChange={setTranscript}
               description="CSV, TXT or TSV"
             />
-
-            <FileInput
-              title="Facial features"
-              accept=".txt,.csv"
-              file={facial}
-              onChange={setFacial}
-              description="Extracted feature file for quality analysis"
-            />
           </div>
 
           <div className="selected-summary">
             <h4>Selected Inputs</h4>
+
             <div className="selected-tags">
               {audio && <span className="selected-tag">Audio</span>}
               {video && <span className="selected-tag">Video</span>}
               {transcript && <span className="selected-tag">Text</span>}
-              {facial && <span className="selected-tag">Facial file</span>}
-              {!audio && !video && !transcript && !facial && (
-                <span className="empty-selection">No files selected</span>
+
+              {!audio && !video && !transcript && (
+                <span className="empty-selection">
+                  No files selected
+                </span>
               )}
             </div>
+
             <p>
-              Screening accepts audio, video and transcript files.
-              Facial feature files can be used separately for input
-              quality assessment.
+              Screening and input quality analysis use the uploaded audio,
+              video and transcript. Facial measurements are extracted
+              automatically from the video.
             </p>
           </div>
 
@@ -329,6 +347,7 @@ function App() {
                 <h3>Screening Report</h3>
                 <p>Experimental model output</p>
               </div>
+
               <span className="anonymous-tag">Anonymous</span>
             </div>
 
@@ -343,9 +362,11 @@ function App() {
 
             <div className="overall-score">
               <span>Estimated PHQ-8 Score</span>
+
               <h2>
                 {Number(screening.estimated_phq8_score).toFixed(2)} / 24
               </h2>
+
               <p>{screening.estimated_range}</p>
             </div>
 
@@ -356,6 +377,7 @@ function App() {
                 <span className="scale-moderate"></span>
                 <span className="scale-severe"></span>
               </div>
+
               <div className="scale-labels">
                 <span>Minimal</span>
                 <span>Mild</span>
@@ -366,6 +388,7 @@ function App() {
 
             <div className="report-details">
               <h4>Interpretation</h4>
+
               <p>
                 {Number(screening.estimated_phq8_score) < 5
                   ? 'The estimated score falls within the minimal symptom range.'
@@ -377,6 +400,7 @@ function App() {
                   ? 'The estimated score falls within the moderately severe symptom range.'
                   : 'The estimated score falls within the severe symptom range.'}
               </p>
+
               <p>
                 This is a model-generated estimate, not a diagnosis.
                 A questionnaire score alone cannot determine whether
@@ -409,36 +433,49 @@ function App() {
 
             <div className="overall-score">
               <span>Overall Quality Score</span>
+
               <h2>
                 {report.overall_quality_score ?? 'N/A'}
                 {report.overall_quality_score !== null ? '/100' : ''}
               </h2>
+
               <p>{report.overall_status}</p>
             </div>
 
             <div className="report-grid">
-              {['audio', 'facial', 'text'].map((modality) => (
+              {['audio', 'video', 'text'].map((modality) => (
                 <div className="report-card" key={modality}>
-                  <h4>{modality.charAt(0).toUpperCase() + modality.slice(1)}</h4>
+                  <h4>
+                    {modality.charAt(0).toUpperCase() + modality.slice(1)}
+                  </h4>
+
                   <p>
                     Status:{' '}
                     {report[modality]?.available
                       ? 'Available'
                       : 'Not available'}
                   </p>
+
                   {report.quality_scores?.[modality] !== undefined && (
-                    <p>Quality score: {report.quality_scores[modality]}/100</p>
+                    <p>
+                      Quality score: {report.quality_scores[modality]}/100
+                    </p>
                   )}
+
                   {report[modality]?.warnings?.length > 0 && (
                     <div className="warning-list">
                       <strong>Warnings</strong>
+
                       {report[modality].warnings.map((warning, i) => (
                         <p key={i}>{warning}</p>
                       ))}
                     </div>
                   )}
+
                   {report[modality]?.error && (
-                    <p className="error-message">{report[modality].error}</p>
+                    <p className="error-message">
+                      {report[modality].error}
+                    </p>
                   )}
                 </div>
               ))}
@@ -446,13 +483,19 @@ function App() {
 
             <div className="report-details">
               <h4>Uploaded Modalities</h4>
-              <p>{report.modalities_available?.join(' + ') || 'None'}</p>
+
+              <p>
+                {report.modalities_available?.join(' + ') || 'None'}
+              </p>
 
               {report.overall_warnings?.length > 0 && (
                 <>
                   <h4>Overall Warnings</h4>
+
                   {report.overall_warnings.map((warning, i) => (
-                    <p className="warning-text" key={i}>{warning}</p>
+                    <p className="warning-text" key={i}>
+                      {warning}
+                    </p>
                   ))}
                 </>
               )}
@@ -482,11 +525,13 @@ function App() {
             <h3>Multimodal Neural Network</h3>
             <p>Three modality branches</p>
           </div>
+
           <div className="model-summary-card">
             <span>Prediction Target</span>
             <h3>PHQ-8 Regression</h3>
             <p>Estimated score · 0–24</p>
           </div>
+
           <div className="model-summary-card">
             <span>Evaluation Set</span>
             <h3>Development</h3>
@@ -506,13 +551,19 @@ function App() {
             {metrics.map((item) => (
               <div className="chart-row" key={item.name}>
                 <div className="chart-label">{item.name}</div>
+
                 <div className="chart-track">
                   <div
-                    className={`chart-bar ${item.name === 'All Modalities' ? 'highlight-bar' : ''}`}
+                    className={`chart-bar ${
+                      item.name === 'All Modalities' ? 'highlight-bar' : ''
+                    }`}
                     style={{ width: `${(item.mae / 8) * 100}%` }}
                   ></div>
                 </div>
-                <div className="chart-value">{item.mae.toFixed(2)}</div>
+
+                <div className="chart-value">
+                  {item.mae.toFixed(2)}
+                </div>
               </div>
             ))}
           </div>
@@ -540,9 +591,15 @@ function App() {
                   <th>RMSE</th>
                 </tr>
               </thead>
+
               <tbody>
                 {metrics.map((item) => (
-                  <tr key={item.name} className={item.name === 'All Modalities' ? 'table-highlight' : ''}>
+                  <tr
+                    key={item.name}
+                    className={
+                      item.name === 'All Modalities' ? 'table-highlight' : ''
+                    }
+                  >
                     <td>{item.name}</td>
                     <td>{item.mae.toFixed(4)}</td>
                     <td>{item.rmse.toFixed(4)}</td>
@@ -566,18 +623,22 @@ function App() {
               <strong>Speech branch</strong>
               <p>Extracted acoustic feature representation.</p>
             </div>
+
             <div>
               <strong>Facial branch</strong>
               <p>OpenFace-based action unit and landmark representation.</p>
             </div>
+
             <div>
               <strong>Text branch</strong>
               <p>TF-IDF transcript feature representation.</p>
             </div>
+
             <div>
               <strong>Output</strong>
               <p>Regression-based estimated PHQ-8 score.</p>
             </div>
+
             <div>
               <strong>Evaluation protocol</strong>
               <p>
@@ -607,6 +668,7 @@ function App() {
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-icon">M</div>
+
           <div>
             <h2>MindCare</h2>
             <span>AI Screening Prototype</span>
@@ -614,6 +676,7 @@ function App() {
         </div>
 
         <div className="nav-label">WORKSPACE</div>
+
         <nav>
           <button
             className={`nav-item ${page === 'dashboard' ? 'active' : ''}`}
@@ -639,6 +702,7 @@ function App() {
 
         <div className="sidebar-bottom">
           <div className="status-dot"></div>
+
           <div>
             <strong>MindCare API</strong>
             <small>Local development server</small>
@@ -649,7 +713,15 @@ function App() {
       <main className="main-content">
         <header className="topbar">
           <div>
-            <div className="breadcrumb">MindCare / {page === 'dashboard' ? 'Dashboard' : page === 'assessment' ? 'New Assessment' : 'About Model'}</div>
+            <div className="breadcrumb">
+              MindCare /{' '}
+              {page === 'dashboard'
+                ? 'Dashboard'
+                : page === 'assessment'
+                ? 'New Assessment'
+                : 'About Model'}
+            </div>
+
             <h1>
               {page === 'dashboard'
                 ? 'Dashboard'
@@ -658,6 +730,7 @@ function App() {
                 : 'About Model'}
             </h1>
           </div>
+
           <div className="profile">M</div>
         </header>
 
