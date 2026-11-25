@@ -23,3 +23,20 @@ tests/
 .DS_Store
 Thumbs.db
 *.log
+
+# Experimental model artifacts
+models/experiment_v1/
+models/experiment_v1_weighted/
+models/weighted_experiment/
+
+# Experiment results
+results/
+
+# Streamlit leftovers
+streamlit_app.py
+app/streamlit/
+
+# Local backup and debugging files
+models/*_v1_backup.*
+build_log.txt
+test_inference.py

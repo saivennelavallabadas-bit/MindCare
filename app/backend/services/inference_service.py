@@ -25,12 +25,17 @@ FEATURE_SCHEMA = ROOT / "models" / "multimodal_feature_schema.csv"
 
 import os
 
-OPENFACE_PATH = Path(
-    os.environ.get(
-        "OPENFACE_PATH",
-        r"C:\Users\91988\Documents\FYP\Tools\OpenFace\OpenFace_2.2.0_win_x64\FeatureExtraction.exe"
+if os.name == "nt":
+    OPENFACE_PATH = Path(
+        os.environ.get(
+            "OPENFACE_PATH",
+            r"C:\Users\91988\Documents\FYP\Tools\OpenFace\OpenFace_2.2.0_win_x64\FeatureExtraction.exe"
+        )
     )
-)
+else:
+    OPENFACE_PATH = Path(
+        os.environ.get("OPENFACE_PATH", "/usr/local/bin/FeatureExtraction")
+    )
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

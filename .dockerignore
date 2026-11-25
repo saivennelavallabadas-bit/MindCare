@@ -1,0 +1,15 @@
+.venv
+venv
+__pycache__
+*.pyc
+.git
+.gitignore
+data/
+reports/
+results/
+catboost_info/
+test_openface_output/
+app/frontend/node_modules/
+app/frontend/dist/
+tests/
+test_inference.py
