@@ -14,6 +14,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "https://mindcare-rosy-nu.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -26,7 +27,7 @@ app.include_router(quality_router)
 @app.get("/")
 def home():
     return {
-        "application": "MindCare",
+        "application": "MindCare API",
         "message": "MindCare API is running"
     }
 

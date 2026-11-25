@@ -21,10 +21,15 @@ from src.features.extract_facial_landmarks import extract_landmark_features
 MODEL_PATH = ROOT / "models" / "multimodal_missing_model.pt"
 SCALER_PATH = ROOT / "models" / "multimodal_missing_scalers.joblib"
 VECTORIZER_PATH = ROOT / "models" / "tfidf_vectorizer.joblib"
-FEATURE_SCHEMA = ROOT / "data" / "processed" / "multimodal_features.csv"
+FEATURE_SCHEMA = ROOT / "models" / "multimodal_feature_schema.csv"
+
+import os
 
 OPENFACE_PATH = Path(
-    r"C:\Users\91988\Documents\FYP\Tools\OpenFace\OpenFace_2.2.0_win_x64\FeatureExtraction.exe"
+    os.environ.get(
+        "OPENFACE_PATH",
+        r"C:\Users\91988\Documents\FYP\Tools\OpenFace\OpenFace_2.2.0_win_x64\FeatureExtraction.exe"
+    )
 )
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -135,8 +140,10 @@ def get_interpretation(score):
 def extract_video_features(video_path, output_dir):
 
     if not OPENFACE_PATH.exists():
-        raise FileNotFoundError(
-            f"OpenFace executable not found: {OPENFACE_PATH}"
+        raise RuntimeError(
+            "Video analysis is unavailable on this server because "
+            "OpenFace is not installed. Please use audio or transcript "
+            "analysis instead."
         )
 
     command = [
@@ -356,3 +363,4 @@ def predict_screening(
             "Not a clinical diagnosis or validated clinical assessment."
         )
     }
+
